@@ -20,9 +20,9 @@ public class ProductController {
 
         Product product = productService.getProductById(productId);
 
-        if(product != null){
+        if (product != null) {
             return ResponseEntity.status(HttpStatus.OK).body(product);
-        }else{
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
@@ -41,8 +41,8 @@ public class ProductController {
                                                   @RequestBody @Valid ProductRequest productRequest) {
 
         //先檢查product是否存在
-        Product product=productService.getProductById(productId);
-        if(product==null){
+        Product product = productService.getProductById(productId);
+        if (product == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } else {
             //確認存在後則修改商品資訊
@@ -52,6 +52,13 @@ public class ProductController {
         }
     }
 
+    @DeleteMapping("products/{productId}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
 
+        //不像update要確認ID是否存在，因為刪除對前端而言都只是希望此商品不存在的“結果”。
+        //所以我們就只要確認消失不見就好，就可以去返還204 no content 給前端就好
 
+        productService.deleteProductById(productId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
