@@ -33,7 +33,7 @@ public class ProductDaoImpl implements ProductDao {
 
         Map<String, Object> map = new HashMap<>();
 
-        //唯獨查詢條件不為null才做拼接語句(拼接語句記得加上空白鍵！）：
+        //查詢條件，唯獨查詢條件不為null才做拼接語句(拼接語句記得加上空白鍵！）：
         if(productQueryParams.getCategory()!=null){
             sql = sql + " AND category = :category";
             map.put("category", productQueryParams.getCategory().name());
@@ -44,10 +44,17 @@ public class ProductDaoImpl implements ProductDao {
             map.put("search", "%"+productQueryParams.getSearch()+"%");
         }
 
+        //排序
         //因為在controller已經有default值的設定了，所以就不用判斷是否為null:
         sql = sql + " ORDER BY "+productQueryParams.getOrderBy()+" "+productQueryParams.getSort();
 
+        //分頁
+        sql = sql + " LIMIT :limit OFFSET :offset";
+        map.put("limit", productQueryParams.getLimit());
+        map.put("offset",productQueryParams.getOffSet());
+
         List<Product> productList = namedParameterJdbcTemplate.query(sql, map, new ProductRowMapper());
+
 
         return productList;
     }
