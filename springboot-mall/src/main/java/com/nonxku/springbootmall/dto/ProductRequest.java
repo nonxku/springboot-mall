@@ -1,7 +1,7 @@
 package com.nonxku.springbootmall.dto;
 
 import com.nonxku.springbootmall.constant.ProductCategory;
-import org.antlr.v4.runtime.misc.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 
 public class ProductRequest {
