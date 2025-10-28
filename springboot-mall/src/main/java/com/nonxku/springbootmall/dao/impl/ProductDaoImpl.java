@@ -24,14 +24,12 @@ public class ProductDaoImpl implements ProductDao {
     @Autowired
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+    //提煉重複的sql語句，將查詢條件獨立成一個方法！
+    private String addFliteringSql(String sql,
+                                   Map<String, Object> map,
+                                   ProductQueryParams productQueryParams){
 
-    @Override
-    public Integer countProduct(ProductQueryParams productQueryParams) {
-        String sql = "select count(*) from product where 1=1";
-
-        Map<String, Object> map = new HashMap<>();
-
-        //根據前端的拼接語句來判斷
+        //查詢條件，唯獨查詢條件不為null才做拼接語句(拼接語句記得加上空白鍵！）：
         if(productQueryParams.getCategory()!=null){
             sql = sql + " AND category = :category";
             map.put("category", productQueryParams.getCategory().name());
@@ -41,6 +39,19 @@ public class ProductDaoImpl implements ProductDao {
             sql = sql + " AND product_name LIKE :search";
             map.put("search", "%"+productQueryParams.getSearch()+"%");
         }
+
+        return sql;
+    }
+
+
+    @Override
+    public Integer countProduct(ProductQueryParams productQueryParams) {
+        String sql = "select count(*) from product where 1=1";
+
+        Map<String, Object> map = new HashMap<>();
+
+        //利用把拼接語句提煉成方法，拿來使用
+       sql = addFliteringSql(sql, map, productQueryParams);
 
         Integer total = namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
 
@@ -55,16 +66,9 @@ public class ProductDaoImpl implements ProductDao {
 
         Map<String, Object> map = new HashMap<>();
 
-        //查詢條件，唯獨查詢條件不為null才做拼接語句(拼接語句記得加上空白鍵！）：
-        if(productQueryParams.getCategory()!=null){
-            sql = sql + " AND category = :category";
-            map.put("category", productQueryParams.getCategory().name());
-        }
 
-        if(productQueryParams.getSearch()!=null){
-            sql = sql + " AND product_name LIKE :search";
-            map.put("search", "%"+productQueryParams.getSearch()+"%");
-        }
+        //利用把拼接語句提煉成方法，拿來使用
+        sql = addFliteringSql(sql, map, productQueryParams);
 
         //排序
         //因為在controller已經有default值的設定了，所以就不用判斷是否為null:
@@ -157,4 +161,6 @@ public class ProductDaoImpl implements ProductDao {
         namedParameterJdbcTemplate.update(sql,map);
 
     }
+
+
 }
