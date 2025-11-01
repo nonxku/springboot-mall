@@ -1,6 +1,7 @@
 package com.nonxku.springbootmall.service.impl;
 
 import com.nonxku.springbootmall.dao.UserDao;
+import com.nonxku.springbootmall.dto.UserLoginRequest;
 import com.nonxku.springbootmall.dto.UserRegisterRequest;
 import com.nonxku.springbootmall.model.User;
 import com.nonxku.springbootmall.service.UserService;
@@ -39,5 +40,25 @@ public class UserServiceImpl implements UserService {
 
         //創建帳號
         return userDao.createUser(userRegisterRequest);
+    }
+
+    @Override
+    public User login(UserLoginRequest userLoginRequest) {
+
+        //用ＤＡＯ層方法，去資料庫查user數據！
+        User user = userDao.getUserByEmail(userLoginRequest.getEmail());
+
+        if(user==null){
+            log.warn("該email {} 尚未註冊", userLoginRequest.getEmail());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if(user.getPassword().equals(userLoginRequest.getPassword())){
+            return user;
+        }else{
+            log.warn("email{}的密碼不正確", userLoginRequest.getEmail());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
     }
 }
