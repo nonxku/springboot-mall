@@ -4,6 +4,7 @@ import com.nonxku.springbootmall.dao.OrderDao;
 import com.nonxku.springbootmall.dao.ProductDao;
 import com.nonxku.springbootmall.dto.BuyItem;
 import com.nonxku.springbootmall.dto.CreateOrderRequest;
+import com.nonxku.springbootmall.model.Order;
 import com.nonxku.springbootmall.model.OrderItem;
 import com.nonxku.springbootmall.model.Product;
 import com.nonxku.springbootmall.service.OrderService;
@@ -22,6 +23,18 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ProductDao productDao;
 
+
+    @Override
+    public Order getOrderById(Integer orderId) {
+
+        Order order = orderDao.getOrderById(orderId);
+
+        List<OrderItem> orderItemList = orderDao.getOrderItemsByOrderId(orderId);
+
+        order.setOrderItemList(orderItemList);
+
+        return order;
+    }
 
     @Transactional
     @Override
@@ -52,9 +65,9 @@ public class OrderServiceImpl implements OrderService {
         //創建訂單：分別在order & orderId 兩張表格內建立數據
 
         Integer orderId = orderDao.createOrder(userId,totalAmount);
-
         orderDao.createOrderItems(orderId,orderItemList);
-
         return orderId;
     }
+
+
 }
