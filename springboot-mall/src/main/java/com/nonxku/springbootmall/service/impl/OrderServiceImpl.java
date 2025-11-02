@@ -5,6 +5,7 @@ import com.nonxku.springbootmall.dao.ProductDao;
 import com.nonxku.springbootmall.dao.UserDao;
 import com.nonxku.springbootmall.dto.BuyItem;
 import com.nonxku.springbootmall.dto.CreateOrderRequest;
+import com.nonxku.springbootmall.dto.OrderQueryParams;
 import com.nonxku.springbootmall.model.Order;
 import com.nonxku.springbootmall.model.OrderItem;
 import com.nonxku.springbootmall.model.Product;
@@ -103,6 +104,25 @@ public class OrderServiceImpl implements OrderService {
         Integer orderId = orderDao.createOrder(userId,totalAmount);
         orderDao.createOrderItems(orderId,orderItemList);
         return orderId;
+    }
+
+    @Override
+    public Integer countOrder(OrderQueryParams orderQueryParams) {
+        return orderDao.countOrder(orderQueryParams);
+    }
+
+    @Override
+    public List<Order> getOrders(OrderQueryParams orderQueryParams) {
+        List<Order> orderList = orderDao.getOrders(orderQueryParams);
+
+        //把order Item 放到order Id 底下
+        for(Order order : orderList){
+            List<OrderItem> orderItemList = orderDao.getOrderItemsByOrderId(order.getOrderId());
+
+            order.setOrderItemList(orderItemList);
+        }
+
+        return orderList;
     }
 
 
